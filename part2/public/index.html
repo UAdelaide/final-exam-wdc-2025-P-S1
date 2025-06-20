@@ -124,7 +124,7 @@
           }
         },
 
-        // Handle login form submission
+        // Handle login
         async login() {
           this.isLoading = true;
           this.error = '';
@@ -146,7 +146,7 @@
               this.currentUser = result.user;
               this.isLoggedIn = true;
 
-              // Redirect based on user role after short delay
+              // Redirect based on role of the user after delay
               setTimeout(() => {
                 window.location.href = result.redirect;
               }, 1000);
