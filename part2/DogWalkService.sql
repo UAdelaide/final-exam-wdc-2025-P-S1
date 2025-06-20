@@ -44,20 +44,20 @@ CREATE TABLE IF NOT EXISTS WalkApplications (
     FOREIGN KEY (walker_id) REFERENCES Users(user_id)
 );
 
--- Insert sample users for testing website functionality
+-- Insert users for testing website functionality
 INSERT IGNORE INTO Users (username, email, password_hash, role) VALUES
 ('Jane Smith', 'owner.jane@email.com', 'password123', 'owner'),
 ('Terry Johnson ', 'walker.terry@email.com', 'password123', 'walker'),
 ('Sarah Munch', 'walker.sarah@email.com', 'password123', 'walker'),
 ('Bob Richards', 'owner.bob@email.com', 'password123', 'owner');
 
--- Insert sample dogs
+-- Insert dogs
 INSERT IGNORE INTO Dogs (name, size, owner_id) VALUES
 ('Ace', 'large', 1),
 ('Lily', 'medium', 1),
 ('Rex', 'small', 4);
 
--- Insert sample walk requests
+-- Insert walk requests
 INSERT IGNORE INTO WalkRequests (dog_id, requested_time, duration_minutes, location) VALUES
 (1, '2024-06-21 10:00:00', 30, 'Green Park'),
 (2, '2024-06-21 14:00:00', 45, 'Riverside Lake'),
