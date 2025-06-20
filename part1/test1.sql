@@ -71,7 +71,7 @@ VALUES ((SELECT dog_id FROM Dogs WHERE name = 'Harry'),
         '2025-06-11 15:30:00', 25, 'River Walk', 'completed');
 
 INSERT INTO WalkRequests (dog_id, requested_time, duration_minutes, location, status)
-VALUES ((SELECT dog_id FROM Dogs WHERE name = 'Charlie'),
+VALUES ((SELECT dog_id FROM Dogs WHERE name = 'Simon'),
         '2025-06-12 16:00:00', 40, 'Dog Beach', 'cancelled');
 
 
