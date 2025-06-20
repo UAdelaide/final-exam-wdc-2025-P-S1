@@ -1,8 +1,8 @@
--- Ensure database is 
+-- Ensure database exists
 CREATE DATABASE IF NOT EXISTS DogWalkService;
 USE DogWalkService;
 
--- Create Users table (if it doesn't exist)
+-- Create Users table
 CREATE TABLE IF NOT EXISTS Users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS Users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create Dogs table (if it doesn't exist)
+-- Create Dogs table
 CREATE TABLE IF NOT EXISTS Dogs (
     dog_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS Dogs (
     FOREIGN KEY (owner_id) REFERENCES Users(user_id)
 );
 
--- Create WalkRequests table (if it doesn't exist)
+-- Create WalkRequests table
 CREATE TABLE IF NOT EXISTS WalkRequests (
     request_id INT AUTO_INCREMENT PRIMARY KEY,
     dog_id INT,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS WalkRequests (
     FOREIGN KEY (dog_id) REFERENCES Dogs(dog_id)
 );
 
--- Create WalkApplications table (if it doesn't exist)
+-- Create WalkApplications table 
 CREATE TABLE IF NOT EXISTS WalkApplications (
     application_id INT AUTO_INCREMENT PRIMARY KEY,
     request_id INT,
