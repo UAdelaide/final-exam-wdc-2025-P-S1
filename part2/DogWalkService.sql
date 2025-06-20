@@ -1,4 +1,4 @@
--- Ensure the database exists
+-- Ensure database is 
 CREATE DATABASE IF NOT EXISTS DogWalkService;
 USE DogWalkService;
 
