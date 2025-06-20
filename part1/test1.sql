@@ -17,10 +17,10 @@ VALUES ('carol123', 'carol@example.com', 'hashed789', 'owner');
 
 -- Additional users (custom choices)
 INSERT INTO Users (username, email, password_hash, role)
-VALUES ('bob_runner', 'bob@example.com', 'hashed321', 'walker');
+VALUES ('tom', 'bob@example.com', 'hashed321', 'walker');
 
 INSERT INTO Users (username, email, password_hash, role)
-VALUES ('emma_pet', 'emma@example.com', 'hashed654', 'owner');
+VALUES ('rachel_pet', 'emma@example.com', 'hashed654', 'owner');
 
 
 -- Insert Dogs (5 total: 2 specified + 3 custom)
