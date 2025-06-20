@@ -10,11 +10,94 @@
 <body class="bg-light">
 
   <div id="app" class="container py-5">
-    <h1 class="mb-4 text-primary">{{ message }}</h1>
-    <p class="lead">Connect with trusted walkers for your beloved dog!</p>
+    <!-- Login Form - shown when not authenticated -->
+    <div v-if="!isLoggedIn" class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card shadow">
+          <div class="card-header bg-primary text-white">
+            <h1 class="mb-0 text-center">Welcome to the Dog Walking Service!</h1>
+          </div>
+          <div class="card-body">
+            <p class="lead text-center mb-4">Connect with trusted student walkers for your beloved dog!</p>
 
-    <a href="owner-dashboard.html" class="btn btn-outline-primary me-2">Owner Dashboard</a>
-    <a href="walker-dashboard.html" class="btn btn-outline-success">Walker Dashboard</a>
+            <!-- Sample Login Information -->
+            <div class="alert alert-info mb-4">
+              <strong>Sample Login Credentials:</strong><br>
+              <small>
+                Owner: username="alice123", password="hashed123"<br>
+                Walker: username="bobwalker", password="hashed456"
+              </small>
+            </div>
+
+            <!-- Login Form -->
+            <form @submit.prevent="login">
+              <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="username"
+                  v-model="loginForm.username"
+                  required
+                  placeholder="Enter your username">
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  v-model="loginForm.password"
+                  required
+                  placeholder="Enter your password">
+              </div>
+              <div class="d-grid">
+                <button type="submit" class="btn btn-primary" :disabled="isLoading">
+                  <span v-if="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                  {{ isLoading ? 'Logging in...' : 'Log In' }}
+                </button>
+              </div>
+            </form>
+
+            <!-- Error/Success Messages -->
+            <div v-if="message" class="alert alert-success mt-3">{{ message }}</div>
+            <div v-if="error" class="alert alert-danger mt-3">{{ error }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard Navigation - shown when authenticated -->
+    <div v-else>
+      <div class="row">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h1 class="text-primary mb-0">Welcome, {{ currentUser.username }}!</h1>
+              <p class="text-muted">Role: {{ currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1) }}</p>
+            </div>
+            <button @click="logout" class="btn btn-outline-secondary">
+              <i class="bi bi-box-arrow-right"></i> Logout
+            </button>
+          </div>
+
+          <p class="lead mb-4">Connect with trusted student walkers for your beloved dog!</p>
+
+          <div class="text-center">
+            <div v-if="currentUser.role === 'owner'" class="mb-3">
+              <a href="owner-dashboard.html" class="btn btn-primary btn-lg me-2">
+                <i class="bi bi-person-circle"></i> Owner Dashboard
+              </a>
+            </div>
+            <div v-if="currentUser.role === 'walker'" class="mb-3">
+              <a href="walker-dashboard.html" class="btn btn-success btn-lg">
+                <i class="bi bi-bicycle"></i> Walker Dashboard
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -22,8 +105,87 @@
     createApp({
       data() {
         return {
-          message: 'Welcome to the Dog Walking Service!'
+          isLoggedIn: false,
+          currentUser: null,
+          isLoading: false,
+          message: '',
+          error: '',
+          loginForm: {
+            username: '',
+            password: ''
+          }
         };
+      },
+
+      async mounted() {
+        // Check if user is already logged in
+        await this.checkAuthStatus();
+      },
+
+      methods: {
+        // Check current authentication status
+        async checkAuthStatus() {
+          try {
+            const response = await fetch('/api/users/me');
+            if (response.ok) {
+              this.currentUser = await response.json();
+              this.isLoggedIn = true;
+            }
+          } catch (err) {
+            // User not logged in, show login form
+            this.isLoggedIn = false;
+          }
+        },
+
+        // Handle login form submission
+        async login() {
+          this.isLoading = true;
+          this.error = '';
+          this.message = '';
+
+          try {
+            const response = await fetch('/api/users/login', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(this.loginForm)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+              this.message = result.message;
+              this.currentUser = result.user;
+              this.isLoggedIn = true;
+
+              // Redirect based on user role after short delay
+              setTimeout(() => {
+                window.location.href = result.redirect;
+              }, 1500);
+            } else {
+              this.error = result.error || 'Login failed';
+            }
+          } catch (err) {
+            this.error = 'Network error. Please try again.';
+          } finally {
+            this.isLoading = false;
+          }
+        },
+
+        // Handle logout
+        async logout() {
+          try {
+            await fetch('/api/users/logout', { method: 'POST' });
+            this.isLoggedIn = false;
+            this.currentUser = null;
+            this.loginForm = { username: '', password: '' };
+            this.message = '';
+            this.error = '';
+          } catch (err) {
+            this.error = 'Logout failed';
+          }
+        }
       }
     }).mount('#app');
   </script>
