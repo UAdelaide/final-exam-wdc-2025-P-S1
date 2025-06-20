@@ -23,10 +23,6 @@ INSERT INTO Users (username, email, password_hash, role)
 VALUES ('rachel123', 'rachel@example.com', 'hashed654', 'owner');
 
 
--- Insert Dogs (5 total: 2 specified + 3 custom)
--- ==========================================
-
--- Required dogs (using subqueries to find owner_id)
 INSERT INTO Dogs (name, size, owner_id)
 VALUES ('Max', 'medium',
     (SELECT user_id FROM Users WHERE username = 'alice123'));
@@ -35,7 +31,7 @@ INSERT INTO Dogs (name, size, owner_id)
 VALUES ('Bella', 'small',
     (SELECT user_id FROM Users WHERE username = 'carol123'));
 
--- Additional dogs (custom choices)
+
 INSERT INTO Dogs (name, size, owner_id)
 VALUES ('Ben', 'large',
     (SELECT user_id FROM Users WHERE username = 'tom123'));
@@ -49,10 +45,6 @@ VALUES ('Simon', 'medium',
     (SELECT user_id FROM Users WHERE username = 'rachel123'));
 
 
--- Insert Walk Requests (5 total: 2 specified + 3 custom)
--- ==========================================
-
--- Required walk requests (using subqueries to find dog_id)
 INSERT INTO WalkRequests (dog_id, requested_time, duration_minutes, location, status)
 VALUES ((SELECT dog_id FROM Dogs WHERE name = 'Max'),
         '2025-06-10 08:00:00', 30, 'Parklands', 'open');
@@ -61,7 +53,6 @@ INSERT INTO WalkRequests (dog_id, requested_time, duration_minutes, location, st
 VALUES ((SELECT dog_id FROM Dogs WHERE name = 'Bella'),
         '2025-06-10 09:30:00', 45, 'Beachside Ave', 'accepted');
 
--- Additional walk requests (custom choices)
 
 INSERT INTO WalkRequests (dog_id, requested_time, duration_minutes, location, status)
 VALUES ((SELECT dog_id FROM Dogs WHERE name = 'Ben'),
