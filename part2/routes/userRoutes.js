@@ -20,6 +20,7 @@ router.get('/me', (req, res) => {
   res.json(req.session.user);
 });
 
+
 // POST login with session management and role-based redirection
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
@@ -65,5 +66,7 @@ router.post('/logout', (req, res) => {
     res.json({ message: 'Logged out successfully' });
   });
 });
+
+
 
 module.exports = router;
