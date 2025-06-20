@@ -2,7 +2,7 @@
 CREATE DATABASE IF NOT EXISTS DogWalkService;
 USE DogWalkService;
 
--- Create Users 
+-- Create Users
 CREATE TABLE IF NOT EXISTS Users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS WalkApplications (
 -- Insert sample users for testing website functionality
 INSERT IGNORE INTO Users (username, email, password_hash, role) VALUES
 ('Jane Smith', 'owner.jane@email.com', 'password123', 'owner'),
-('Mike Johnson', 'walker.mike@email.com', 'password123', 'walker'),
+('Terry johnson ', 'walker.mike@email.com', 'password123', 'walker'),
 ('Sarah Davis', 'walker.sarah@email.com', 'password123', 'walker'),
 ('Bob Wilson', 'owner.bob@email.com', 'password123', 'owner');
 
