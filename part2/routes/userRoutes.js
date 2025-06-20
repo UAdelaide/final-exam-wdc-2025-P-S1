@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../models/db');
 
-// GET all users (for admin/testing)
+// GET all users
 router.get('/', async (req, res) => {
   try {
     const [rows] = await db.query('SELECT user_id, username, email, role FROM Users');
@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST a new user (simple signup)
+// POST a new user
 router.post('/register', async (req, res) => {
   const { username, email, password, role } = req.body;
 
@@ -28,7 +28,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// GET current user info
+// GET user info
 router.get('/me', (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ error: 'Not logged in' });
@@ -36,7 +36,7 @@ router.get('/me', (req, res) => {
   res.json(req.session.user);
 });
 
-// POST login 
+// POST login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -88,11 +88,11 @@ router.post('/logout', (req, res) => {
       return res.status(500).json({ error: 'Logout failed' });
     }
 
-    // Clear the session cookie completely
+    // Clear the session cookies
     res.clearCookie('connect.sid', {
       path: '/',
       httpOnly: true,
-      secure: false // Set to true in production with HTTPS
+      secure: false 
     });
 
     console.log('User logged out successfully');
