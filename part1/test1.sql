@@ -34,7 +34,7 @@ VALUES ('Bella', 'small',
 
 INSERT INTO Dogs (name, size, owner_id)
 VALUES ('Ben', 'large',
-    (SELECT user_id FROM Users WHERE username = 'tom123'));
+    (SELECT user_id FROM Users WHERE username = 'rachel123'));
 
 INSERT INTO Dogs (name, size, owner_id)
 VALUES ('Harry', 'small',
