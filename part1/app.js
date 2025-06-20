@@ -29,7 +29,7 @@ app.get('/api/walkers/summary', async (req, res) => {
         res.json(formattedData);
 
     } catch (error) {
-        console.error('Error retreiving walker summary:', error);
+        console.error('Error retrieving walker summary:', error);
         res.status(500).json({
             error: 'Server error',
             message: 'Could not retrieve walker summary'
