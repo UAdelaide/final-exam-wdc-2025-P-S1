@@ -85,7 +85,7 @@
           }
         }
 
-        // MODIFIED: applyToWalk function to use current user ID
+        // changed: applyToWalk function to use current user ID
         async function applyToWalk(requestId) {
           try {
             // ADDED: Check if we have current user data
@@ -97,7 +97,7 @@
             const res = await fetch(`/api/walks/${requestId}/apply`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              // CHANGED: Use currentUser.value.user_id instead of hardcoded user
+
               body: JSON.stringify({ walker_id: currentUser.value.user_id })
             });
             const result = await res.json();
@@ -130,7 +130,7 @@
           }
         }
 
-        // MODIFIED: onMounted 
+        // MODIFIED: onMounted
         onMounted(() => {
           getCurrentUser();
           loadWalkRequests();

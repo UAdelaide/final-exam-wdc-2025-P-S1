@@ -172,14 +172,14 @@
         }
 
         onMounted(() => {
-          loadUserDogs(); // ADDED: Load user's dogs on page mount
+          loadUserDogs(); // added: Load user's dogs on page mount
           loadWalks();
         });
 
         return {
           form,
           walks,
-          userDogs, // ADDED: Expose userDogs to template
+          userDogs, // added: Expose userDogs to template
           message,
           error,
           submitWalkRequest,
