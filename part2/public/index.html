@@ -111,7 +111,7 @@
           {{ dogsError }}
         </div>
 
-        <!-- Simple Dogs Table matching the image -->
+        <!-- Dog Table matching the image -->
         <div v-if="!dogsLoading && dogs.length > 0">
           <table class="table table-striped">
             <thead>
@@ -188,7 +188,7 @@
           }
         }
 
-        // Fetch random dog photo from dogs.ceo API
+        // retrieve random dog photo from dogs.ceo API
         async function getRandomDogPhoto() {
           try {
             const response = await fetch('https://dog.ceo/api/breeds/image/random');
@@ -200,7 +200,7 @@
           }
         }
 
-        // Map owner username to a simple ID for display (since your API returns username)
+        // Map owner username to a simple ID for display
         function getOwnerIdForDisplay(ownerUsername) {
           // Simple mapping for display purposes
           const ownerMap = {
