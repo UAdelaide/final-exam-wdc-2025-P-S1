@@ -1,9 +1,3 @@
--- ==========================================
--- SQL INSERT Statements for Dog Walking Service
--- ==========================================
-
--- Insert Users (5 total: 3 specified + 2 custom)
--- ==========================================
 
 
 INSERT INTO Users (username, email, password_hash, role)
@@ -67,11 +61,8 @@ VALUES ((SELECT dog_id FROM Dogs WHERE name = 'Simon'),
         '2025-06-12 16:00:00', 40, 'Dog Beach', 'cancelled');
 
 
--- ==========================================
--- Verification Queries (Optional - for testing)
--- ==========================================
 
--- View all data with relationships
+
 SELECT
     u.username as owner_name,
     d.name as dog_name,
