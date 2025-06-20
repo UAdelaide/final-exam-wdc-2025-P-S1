@@ -11,7 +11,6 @@ app.get('/api/dogs', async (req, res) => {
             ORDER BY d.name
         `);
 
-
         res.json(rows);
     } catch (error) {
         console.error('Error retrieving dogs:', error);
@@ -21,7 +20,6 @@ app.get('/api/dogs', async (req, res) => {
         });
     }
 });
-
 
 
 app.get('/api/walkrequests/open', async (req, res) => {
