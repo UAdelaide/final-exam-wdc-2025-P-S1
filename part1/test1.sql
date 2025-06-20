@@ -37,15 +37,15 @@ VALUES ('Bella', 'small',
 
 -- Additional dogs (custom choices)
 INSERT INTO Dogs (name, size, owner_id)
-VALUES ('Rocky', 'large',
+VALUES ('bigboy', 'large',
     (SELECT user_id FROM Users WHERE username = 'emma_pet'));
 
 INSERT INTO Dogs (name, size, owner_id)
-VALUES ('Luna', 'small',
+VALUES ('Harry', 'small',
     (SELECT user_id FROM Users WHERE username = 'alice123'));
 
 INSERT INTO Dogs (name, size, owner_id)
-VALUES ('Charlie', 'medium',
+VALUES ('', 'medium',
     (SELECT user_id FROM Users WHERE username = 'emma_pet'));
 
 
