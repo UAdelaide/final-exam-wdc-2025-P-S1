@@ -13,7 +13,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     secure: false,
-    maxAge: 24 * 60 * 60 * 1000 
+    maxAge: 24 * 60 * 60 * 1000
   }
 }));
 
@@ -53,7 +53,7 @@ app.get('/api/dogs', async (req, res) => {
     }
 });
 
-// GET all open walk requests with detailed information
+// get all open walk requests with detailed information
 app.get('/api/walkrequests/open', async (req, res) => {
     try {
         const sqlQuery = `
