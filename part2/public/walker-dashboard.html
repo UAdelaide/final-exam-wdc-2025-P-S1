@@ -9,7 +9,7 @@
 </head>
 <body class="bg-light">
   <div id="app" class="container py-4">
-    <!-- MODIFIED: Added logout button to header -->
+    <!-- Header with logout button -->
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h1 class="text-success">Walker Dashboard</h1>
       <button @click="logout" class="btn btn-outline-danger">Logout</button>
@@ -45,9 +45,35 @@
     createApp({
       setup() {
         const walks = ref([]);
+        const currentUser = ref(null);  // ADDED: Store current user data
         const message = ref('');
         const error = ref('');
-        const user = 3;
+        // REMOVED: const user = 3;  // Hardcoded value removed
+
+        // ADDED: Function to get current user from /api/users/me
+        async function getCurrentUser() {
+          try {
+            const response = await fetch('/api/users/me', {
+              credentials: 'same-origin'
+            });
+
+            if (response.ok) {
+              const userData = await response.json();
+              currentUser.value = userData;
+
+              // Redirect if not a walker
+              if (userData.role !== 'walker') {
+                window.location.href = '/owner-dashboard.html';
+              }
+            } else {
+              // Not logged in, redirect to login
+              window.location.href = '/';
+            }
+          } catch (err) {
+            console.error('Failed to get current user:', err);
+            window.location.href = '/';
+          }
+        }
 
         async function loadWalkRequests() {
           try {
@@ -59,12 +85,20 @@
           }
         }
 
+        // MODIFIED: applyToWalk function to use current user ID
         async function applyToWalk(requestId) {
           try {
+            // ADDED: Check if we have current user data
+            if (!currentUser.value) {
+              error.value = 'User not authenticated';
+              return;
+            }
+
             const res = await fetch(`/api/walks/${requestId}/apply`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ walker_id: user })
+              // CHANGED: Use currentUser.value.user_id instead of hardcoded user
+              body: JSON.stringify({ walker_id: currentUser.value.user_id })
             });
             const result = await res.json();
 
@@ -78,7 +112,7 @@
           }
         }
 
-        // ADDED: Logout function
+        // Logout function
         async function logout() {
           try {
             const response = await fetch('/api/users/logout', {
@@ -96,16 +130,19 @@
           }
         }
 
+        // MODIFIED: onMounted to call getCurrentUser first
         onMounted(() => {
+          getCurrentUser();  // ADDED: Get current user on page load
           loadWalkRequests();
         });
 
         return {
           walks,
+          currentUser,  // ADDED: Expose currentUser to template
           message,
           error,
           applyToWalk,
-          logout  // ADDED: Added logout to return
+          logout
         };
       }
     }).mount('#app');
