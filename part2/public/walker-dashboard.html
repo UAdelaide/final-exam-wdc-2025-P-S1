@@ -1,119 +1,116 @@
-<!-- ADD: Logout button in header section (replace the <h1> tag) -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="text-success">Walker Dashboard</h1>
-  <div>
-    <span class="me-3">Welcome, <strong>{{ currentUser.username }}</strong>!</span>
-    <button @click="logout" class="btn btn-outline-danger">
-      <i class="bi bi-box-arrow-right"></i> Logout
-    </button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Walker Dashboard - Dog Walking Service</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body class="bg-light">
+  <div id="app" class="container py-4">
+    <!-- MODIFIED: Added logout button to header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="text-success">Walker Dashboard</h1>
+      <button @click="logout" class="btn btn-outline-danger">Logout</button>
+    </div>
+
+    <!-- Alert messages -->
+    <div v-if="message" class="alert alert-info">{{ message }}</div>
+    <div v-if="error" class="alert alert-danger">{{ error }}</div>
+
+    <!-- Walk requests list -->
+    <div v-if="walks.length > 0" class="row">
+      <div class="col-md-6 mb-4" v-for="walk in walks" :key="walk.request_id">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Walk for {{ walk.dog_name }} ({{ walk.size }})</h5>
+            <p class="card-text">
+              <strong>Date:</strong> {{ new Date(walk.requested_time).toLocaleString() }}<br>
+              <strong>Duration:</strong> {{ walk.duration_minutes }} minutes<br>
+              <strong>Location:</strong> {{ walk.location }}<br>
+              <strong>Owner:</strong> {{ walk.owner_name }}
+            </p>
+            <button type=button class="btn btn-outline-success" @click="applyToWalk(walk.request_id)">Apply</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p v-else>No available walk requests at the moment.</p>
   </div>
-</div>
 
-<!-- MODIFY: Update the setup() function to include logout functionality -->
-<script>
-const { createApp, ref, onMounted } = Vue;
+  <script>
+    const { createApp, ref, onMounted } = Vue;
 
-createApp({
-  setup() {
-    // ADD: Current user state for displaying username and role checking
-    const currentUser = ref({ username: 'Loading...' });
+    createApp({
+      setup() {
+        const walks = ref([]);
+        const message = ref('');
+        const error = ref('');
+        const user = 3;
 
-    const walks = ref([]);
-    const message = ref('');
-    const error = ref('');
-    const user = 3; // Default walker ID - could be replaced with session user ID
-
-    // ADD: Function to check if user is logged in and is a walker
-    async function checkAuth() {
-      try {
-        const response = await fetch('/api/users/me');
-        if (response.ok) {
-          const userData = await response.json();
-          currentUser.value = userData;
-
-          // Redirect if not a walker
-          if (userData.role !== 'walker') {
-            window.location.href = '/owner-dashboard.html';
+        async function loadWalkRequests() {
+          try {
+            const res = await fetch('/api/walks');
+            if (!res.ok) throw new Error('Failed to load walk requests');
+            walks.value = await res.json();
+          } catch (err) {
+            error.value = err.message;
           }
-        } else {
-          // Not logged in, redirect to login
-          window.location.href = '/';
         }
-      } catch (err) {
-        console.error('Auth check failed:', err);
-        window.location.href = '/';
-      }
-    }
 
-    // ADD: Logout function
-    async function logout() {
-      try {
-        const response = await fetch('/api/users/logout', {
-          method: 'POST',
-          credentials: 'same-origin' // Ensure cookies are sent
+        async function applyToWalk(requestId) {
+          try {
+            const res = await fetch(`/api/walks/${requestId}/apply`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ walker_id: user })
+            });
+            const result = await res.json();
+
+            if (!res.ok) throw new Error(result.error || 'Application failed');
+            message.value = result.message;
+            error.value = '';
+            await loadWalkRequests();
+          } catch (err) {
+            error.value = err.message;
+            message.value = '';
+          }
+        }
+
+        // ADDED: Logout function
+        async function logout() {
+          try {
+            const response = await fetch('/api/users/logout', {
+              method: 'POST',
+              credentials: 'same-origin'
+            });
+
+            if (response.ok) {
+              window.location.href = '/';
+            } else {
+              error.value = 'Logout failed';
+            }
+          } catch (err) {
+            error.value = 'Logout failed';
+          }
+        }
+
+        onMounted(() => {
+          loadWalkRequests();
         });
 
-        if (response.ok) {
-          // Clear any local storage if used
-          localStorage.clear();
-          sessionStorage.clear();
-
-          // Redirect to login page
-          window.location.href = '/';
-        } else {
-          error.value = 'Logout failed';
-        }
-      } catch (err) {
-        console.error('Logout error:', err);
-        error.value = 'Logout failed';
+        return {
+          walks,
+          message,
+          error,
+          applyToWalk,
+          logout  // ADDED: Added logout to return
+        };
       }
-    }
+    }).mount('#app');
+  </script>
 
-    async function loadWalkRequests() {
-      try {
-        const res = await fetch('/api/walks');
-        if (!res.ok) throw new Error('Failed to load walk requests');
-        walks.value = await res.json();
-      } catch (err) {
-        error.value = err.message;
-      }
-    }
-
-    async function applyToWalk(requestId) {
-      try {
-        // Use actual user ID from session instead of hardcoded value
-        const walkerId = currentUser.value.user_id || user;
-
-        const res = await fetch(`/api/walks/${requestId}/apply`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ walker_id: walkerId })
-        });
-        const result = await res.json();
-
-        if (!res.ok) throw new Error(result.error || 'Application failed');
-        message.value = result.message;
-        error.value = '';
-        await loadWalkRequests();
-      } catch (err) {
-        error.value = err.message;
-        message.value = '';
-      }
-    }
-
-    onMounted(() => {
-      checkAuth(); // ADD: Check authentication on page load
-      loadWalkRequests();
-    });
-
-    return {
-      currentUser, // ADD: Expose current user for template
-      walks,
-      message,
-      error,
-      applyToWalk,
-      logout // ADD: Expose logout function
-    };
-  }
-}).mount('#app');
-</script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
