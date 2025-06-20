@@ -5,7 +5,7 @@
 -- Insert Users (5 total: 3 specified + 2 custom)
 -- ==========================================
 
--- Required users
+
 INSERT INTO Users (username, email, password_hash, role)
 VALUES ('alice123', 'alice@example.com', 'hashed123', 'owner');
 
@@ -15,7 +15,7 @@ VALUES ('bobwalker', 'bob@example.com', 'hashed456', 'walker');
 INSERT INTO Users (username, email, password_hash, role)
 VALUES ('carol123', 'carol@example.com', 'hashed789', 'owner');
 
--- Additional users (custom choices)
+
 INSERT INTO Users (username, email, password_hash, role)
 VALUES ('tom123', 'tom@example.com', 'hashed321', 'walker');
 
