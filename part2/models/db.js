@@ -1,110 +1,71 @@
 const mysql = require('mysql2/promise');
 
-// Create connection without database first
-const connectionConfig = {
+console.log('🔄 Creating database connection pool...');
+
+const pool = mysql.createPool({
   host: 'localhost',
   user: 'root',
-  password: '', // Add your MySQL password if you have one
+  password: '', // Add your MySQL password here if you have one
+  database: 'DogWalkService',
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
-};
+  queueLimit: 0,
+  acquireTimeout: 60000,
+  timeout: 60000
+});
 
-// Function to initialize database
-async function initializeDatabase() {
-  let connection;
+// Test the connection when the module is loaded
+async function testConnection() {
   try {
-    // Connect without specifying database
-    connection = await mysql.createConnection(connectionConfig);
+    console.log('🔍 Testing database connection...');
+    const connection = await pool.getConnection();
+    console.log('✅ Database connected successfully');
 
-    // Create database if it doesn't exist
-    await connection.execute('CREATE DATABASE IF NOT EXISTS DogWalkService');
-    console.log('Database DogWalkService created or verified');
+    // Test if we can query the database
+    const [result] = await connection.execute('SELECT 1 + 1 AS test');
+    console.log('✅ Database query test successful:', result[0]);
 
-    // Use the database
-    await connection.execute('USE DogWalkService');
+    // Check if DogWalkService database exists and we can access it
+    const [databases] = await connection.execute('SELECT DATABASE() AS current_db');
+    console.log('✅ Current database:', databases[0].current_db);
 
-    // Create tables if they don't exist
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS Users (
-          user_id INT AUTO_INCREMENT PRIMARY KEY,
-          username VARCHAR(50) UNIQUE NOT NULL,
-          email VARCHAR(100) UNIQUE NOT NULL,
-          password_hash VARCHAR(255) NOT NULL,
-          role ENUM('owner', 'walker') NOT NULL,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+    // Check if Users table exists
+    const [tables] = await connection.execute("SHOW TABLES LIKE 'Users'");
+    if (tables.length > 0) {
+      console.log('✅ Users table exists');
 
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS Dogs (
-          dog_id INT AUTO_INCREMENT PRIMARY KEY,
-          owner_id INT NOT NULL,
-          name VARCHAR(50) NOT NULL,
-          size ENUM('small', 'medium', 'large') NOT NULL,
-          FOREIGN KEY (owner_id) REFERENCES Users(user_id)
-      )
-    `);
+      // Count users
+      const [count] = await connection.execute('SELECT COUNT(*) as user_count FROM Users');
+      console.log('📊 Number of users in database:', count[0].user_count);
+    } else {
+      console.log('⚠️  Users table does not exist - you may need to create it');
+    }
 
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS WalkRequests (
-          request_id INT AUTO_INCREMENT PRIMARY KEY,
-          dog_id INT NOT NULL,
-          requested_time DATETIME NOT NULL,
-          duration_minutes INT NOT NULL,
-          location VARCHAR(255) NOT NULL,
-          status ENUM('open', 'accepted', 'completed', 'cancelled') DEFAULT 'open',
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (dog_id) REFERENCES Dogs(dog_id)
-      )
-    `);
+    connection.release();
 
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS WalkApplications (
-          application_id INT AUTO_INCREMENT PRIMARY KEY,
-          request_id INT NOT NULL,
-          walker_id INT NOT NULL,
-          applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending',
-          FOREIGN KEY (request_id) REFERENCES WalkRequests(request_id),
-          FOREIGN KEY (walker_id) REFERENCES Users(user_id),
-          CONSTRAINT unique_application UNIQUE (request_id, walker_id)
-      )
-    `);
+  } catch (err) {
+    console.error('❌ Database connection/test failed:');
+    console.error('Error code:', err.code);
+    console.error('Error message:', err.message);
 
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS WalkRatings (
-          rating_id INT AUTO_INCREMENT PRIMARY KEY,
-          request_id INT NOT NULL,
-          walker_id INT NOT NULL,
-          owner_id INT NOT NULL,
-          rating INT CHECK (rating BETWEEN 1 AND 5),
-          comments TEXT,
-          rated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (request_id) REFERENCES WalkRequests(request_id),
-          FOREIGN KEY (walker_id) REFERENCES Users(user_id),
-          FOREIGN KEY (owner_id) REFERENCES Users(user_id),
-          CONSTRAINT unique_rating_per_walk UNIQUE (request_id)
-      )
-    `);
-
-    console.log('All tables created or verified');
-    await connection.end();
-
-  } catch (error) {
-    console.error('Database initialization error:', error);
-    if (connection) await connection.end();
-    throw error;
+    // Provide specific troubleshooting advice
+    if (err.code === 'ECONNREFUSED') {
+      console.error('💡 Solution: MySQL server is not running. Start it with:');
+      console.error('   - Linux/Mac: sudo service mysql start');
+      console.error('   - Windows: net start mysql');
+    } else if (err.code === 'ER_BAD_DB_ERROR') {
+      console.error('💡 Solution: Database "DogWalkService" does not exist. Create it with:');
+      console.error('   mysql -u root -p');
+      console.error('   CREATE DATABASE DogWalkService;');
+    } else if (err.code === 'ER_ACCESS_DENIED_ERROR') {
+      console.error('💡 Solution: Check your MySQL username/password');
+      console.error('   - Default is usually user: root, password: (empty)');
+      console.error('   - Update the password field in this file if needed');
+    }
   }
 }
 
-// Initialize database on startup
-initializeDatabase().catch(console.error);
-
-// Create pool with database specified
-const pool = mysql.createPool({
-  ...connectionConfig,
-  database: 'DogWalkService'
-});
+// Run the test when module loads
+testConnection();
 
 module.exports = pool;
