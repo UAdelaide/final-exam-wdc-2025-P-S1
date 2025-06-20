@@ -47,15 +47,15 @@ CREATE TABLE IF NOT EXISTS WalkApplications (
 -- Insert sample users for testing website functionality
 INSERT IGNORE INTO Users (username, email, password_hash, role) VALUES
 ('Jane Smith', 'owner.jane@email.com', 'password123', 'owner'),
-('Terry Johnson ', 'walker.mike@email.com', 'password123', 'walker'),
+('Terry Johnson ', 'walker.terry@email.com', 'password123', 'walker'),
 ('Sarah Munch', 'walker.sarah@email.com', 'password123', 'walker'),
-('Bob Wilson', 'owner.bob@email.com', 'password123', 'owner');
+('Bob Richards', 'owner.bob@email.com', 'password123', 'owner');
 
 -- Insert sample dogs
 INSERT IGNORE INTO Dogs (name, size, owner_id) VALUES
-('Buddy', 'large', 1),
-('Luna', 'medium', 1),
-('Max', 'small', 4);
+('Ace', 'large', 1),
+('Lily', 'medium', 1),
+('Rex', 'small', 4);
 
 -- Insert sample walk requests
 INSERT IGNORE INTO WalkRequests (dog_id, requested_time, duration_minutes, location) VALUES
