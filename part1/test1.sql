@@ -17,7 +17,7 @@ VALUES ('carol123', 'carol@example.com', 'hashed789', 'owner');
 
 -- Additional users (custom choices)
 INSERT INTO Users (username, email, password_hash, role)
-VALUES ('david_runner', 'david@example.com', 'hashed321', 'walker');
+VALUES ('bob_runner', 'bob@example.com', 'hashed321', 'walker');
 
 INSERT INTO Users (username, email, password_hash, role)
 VALUES ('emma_pet', 'emma@example.com', 'hashed654', 'owner');
