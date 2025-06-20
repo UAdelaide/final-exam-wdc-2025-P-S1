@@ -9,7 +9,7 @@
 </head>
 <body class="bg-light">
   <div id="app" class="container py-4">
-    <!-- MODIFIED: Added logout button to header -->
+    <!-- Header with logout button -->
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h1 class="text-primary">Owner Dashboard</h1>
       <button @click="logout" class="btn btn-outline-danger">Logout</button>
@@ -23,14 +23,17 @@
       <div class="card-body">
         <form @submit.prevent="submitWalkRequest">
           <div class="mb-3">
-          <label class="form-label">Select Your Dog</label>
-          <select v-model="form.dog_id" class="form-control" required>
-            <option value="">-- Choose a dog --</option>
-            <option v-for="dog in userDogs" :key="dog.dog_id" :value="dog.dog_id">
-              {{ dog.name }} ({{ dog.size }})
-            </option>
-          </select>
-        </div>
+            <label class="form-label">Select Your Dog</label>
+            <select v-model="form.dog_id" class="form-control" required>
+              <option value="">-- Choose a dog --</option>
+              <option v-for="dog in userDogs" :key="dog.dog_id" :value="dog.dog_id">
+                {{ dog.name }} ({{ dog.size }})
+              </option>
+            </select>
+            <div v-if="userDogs.length === 0" class="form-text text-muted">
+              No dogs found. Please add a dog to your account first.
+            </div>
+          </div>
           <div class="mb-3">
             <label class="form-label">Requested Date & Time</label>
             <input v-model="form.requested_time" type="datetime-local" class="form-control" required>
@@ -43,7 +46,9 @@
             <label class="form-label">Location</label>
             <input v-model="form.location" type="text" class="form-control" required>
           </div>
-          <button type="submit" class="btn btn-success">Create Walk</button>
+          <button type="submit" class="btn btn-success" :disabled="userDogs.length === 0">
+            Create Walk Request
+          </button>
         </form>
       </div>
     </div>
@@ -86,8 +91,26 @@
         });
 
         const walks = ref([]);
+        const userDogs = ref([]);
         const message = ref('');
         const error = ref('');
+
+        // ADDED: Load user's dogs from the new endpoint
+        async function loadUserDogs() {
+          try {
+            const res = await fetch('/api/users/my-dogs');
+            if (res.ok) {
+              userDogs.value = await res.json();
+            } else if (res.status === 401) {
+              // User not logged in, redirect to login
+              window.location.href = '/';
+            } else {
+              error.value = 'Failed to load your dogs';
+            }
+          } catch (err) {
+            error.value = 'Failed to load your dogs';
+          }
+        }
 
         async function loadWalks() {
           try {
@@ -100,6 +123,12 @@
 
         async function submitWalkRequest() {
           try {
+            // ADDED: Check if user has dogs before submitting
+            if (userDogs.value.length === 0) {
+              error.value = 'You need to add a dog before creating walk requests';
+              return;
+            }
+
             const res = await fetch('/api/walks', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -124,7 +153,7 @@
           }
         }
 
-        // ADDED: Logout function
+        // Logout function
         async function logout() {
           try {
             const response = await fetch('/api/users/logout', {
@@ -143,16 +172,18 @@
         }
 
         onMounted(() => {
+          loadUserDogs(); // ADDED: Load user's dogs on page mount
           loadWalks();
         });
 
         return {
           form,
           walks,
+          userDogs, // ADDED: Expose userDogs to template
           message,
           error,
           submitWalkRequest,
-          logout  // ADDED: Added logout to return
+          logout
         };
       }
     }).mount('#app');
