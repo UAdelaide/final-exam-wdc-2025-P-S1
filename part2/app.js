@@ -86,7 +86,7 @@ app.get('/api/walkrequests/open', async (req, res) => {
     }
 });
 
-// GET walker summary with ratings and completed walks
+// Get summary for walker with ratings and completed walks
 app.get('/api/walkers/summary', async (req, res) => {
     try {
         const query = `
