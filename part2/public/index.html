@@ -10,169 +10,186 @@
 <body class="bg-light">
 
   <div id="app" class="container py-5">
-    <!-- Login Form - not authenticated -->
+    <!-- Welcome section (shown when not logged in) -->
     <div v-if="!isLoggedIn" class="row justify-content-center">
       <div class="col-md-6">
-        <div class="card shadow">
+        <div class="text-center mb-4">
+          <h1 class="mb-4 text-primary">{{ message }}</h1>
+          <p class="lead">Connect with trusted walkers for your beloved dog!</p>
+        </div>
+
+        <!-- Login Form -->
+        <div class="card">
           <div class="card-header bg-primary text-white text-center">
-            <h1 class="mb-0">Welcome to the Dog Walking Service!</h1>
+            <h4>Please Login</h4>
           </div>
           <div class="card-body">
-            <p class="lead text-center mb-4">Connect with trusted student walkers for your beloved dog!</p>
-
-            <!-- Login Form -->
             <form @submit.prevent="login">
               <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
+                <label for="email" class="form-label">Email</label>
                 <input
-                  type="text"
+                  v-model="loginForm.email"
+                  type="email"
                   class="form-control"
-                  id="username"
-                  v-model="loginForm.username"
+                  id="email"
                   required
-                  placeholder="Enter your username">
+                  placeholder="Enter your email"
+                >
               </div>
               <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
                 <input
+                  v-model="loginForm.password"
                   type="password"
                   class="form-control"
                   id="password"
-                  v-model="loginForm.password"
                   required
-                  placeholder="Enter your password">
+                  placeholder="Enter your password"
+                >
               </div>
               <div class="d-grid">
-                <button type="submit" class="btn btn-primary" :disabled="isLoading">
-                  <span v-if="isLoading" class="spinner-border spinner-border-sm me-2"></span>
-                  {{ isLoading ? 'Logging in...' : 'Log In' }}
+                <button type="submit" class="btn btn-primary" :disabled="isLoggingIn">
+                  {{ isLoggingIn ? 'Logging in...' : 'Log In' }}
                 </button>
               </div>
             </form>
 
-            <!-- Error and Success Messages -->
-            <div v-if="message" class="alert alert-success mt-3">{{ message }}</div>
-            <div v-if="error" class="alert alert-danger mt-3">{{ error }}</div>
+            <!-- Error message -->
+            <div v-if="errorMessage" class="alert alert-danger mt-3">
+              {{ errorMessage }}
+            </div>
+
+            <!-- Demo credentials info -->
+            <div class="mt-4">
+              <small class="text-muted">
+                <strong>Demo Credentials:</strong><br>
+                Owner: owner.jane@email.com / password123<br>
+                Walker: walker.mike@email.com / password123
+              </small>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Dashboard Navigation - shown when authenticated -->
-    <div v-else>
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1 class="text-primary mb-0">Welcome, {{ currentUser.username }}!</h1>
-          <p class="text-muted">Role: {{ currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1) }}</p>
-        </div>
+    <!-- Dashboard links (shown when logged in) -->
+    <div v-if="isLoggedIn" class="text-center">
+      <h1 class="mb-4 text-success">Welcome back, {{ currentUser.username }}!</h1>
+      <p class="lead">Choose your dashboard:</p>
+
+      <div class="mt-4">
+        <a
+          v-if="currentUser.role === 'owner'"
+          href="owner-dashboard.html"
+          class="btn btn-outline-primary me-2"
+        >
+          Owner Dashboard
+        </a>
+        <a
+          v-if="currentUser.role === 'walker'"
+          href="walker-dashboard.html"
+          class="btn btn-outline-success me-2"
+        >
+          Walker Dashboard
+        </a>
         <button @click="logout" class="btn btn-outline-secondary">
           Logout
         </button>
-      </div>
-
-      <p class="lead mb-4">Connect with trusted student walkers for your beloved dog!</p>
-
-      <div class="text-center">
-        <div v-if="currentUser.role === 'owner'">
-          <a href="owner-dashboard.html" class="btn btn-primary btn-lg">
-            Owner Dashboard
-          </a>
-        </div>
-        <div v-if="currentUser.role === 'walker'">
-          <a href="walker-dashboard.html" class="btn btn-success btn-lg">
-            Walker Dashboard
-          </a>
-        </div>
       </div>
     </div>
   </div>
 
   <script>
-    const { createApp } = Vue;
+    const { createApp, ref, onMounted } = Vue;
+
     createApp({
-      data() {
-        return {
-          isLoggedIn: false,
-          currentUser: null,
-          isLoading: false,
-          message: '',
-          error: '',
-          loginForm: {
-            username: '',
-            password: ''
-          }
-        };
-      },
+      setup() {
+        const message = ref('Welcome to the Dog Walking Service!');
+        const isLoggedIn = ref(false);
+        const currentUser = ref(null);
+        const isLoggingIn = ref(false);
+        const errorMessage = ref('');
 
-      async mounted() {
+        const loginForm = ref({
+          email: '',
+          password: ''
+        });
+
         // Check if user is already logged in
-        await this.checkAuthStatus();
-      },
-
-      methods: {
-        // Check current authentication
-        async checkAuthStatus() {
+        async function checkLoginStatus() {
           try {
             const response = await fetch('/api/users/me');
             if (response.ok) {
-              this.currentUser = await response.json();
-              this.isLoggedIn = true;
+              const user = await response.json();
+              currentUser.value = user;
+              isLoggedIn.value = true;
             }
-          } catch (err) {
-            // User not logged in, show login form
-            this.isLoggedIn = false;
+          } catch (error) {
+            console.log('Not logged in');
           }
-        },
+        }
 
-        // Handle login
-        async login() {
-          this.isLoading = true;
-          this.error = '';
-          this.message = '';
+        // Login function
+        async function login() {
+          isLoggingIn.value = true;
+          errorMessage.value = '';
 
           try {
             const response = await fetch('/api/users/login', {
               method: 'POST',
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
               },
-              body: JSON.stringify(this.loginForm)
+              body: JSON.stringify(loginForm.value)
             });
 
-            const result = await response.json();
+            const data = await response.json();
 
             if (response.ok) {
-              this.message = result.message;
-              this.currentUser = result.user;
-              this.isLoggedIn = true;
+              currentUser.value = data.user;
+              isLoggedIn.value = true;
 
-              // Redirect based on role of the user after delay
+              // Redirect based on role
               setTimeout(() => {
-                window.location.href = result.redirect;
+                window.location.href = data.redirectTo;
               }, 1000);
-            } else {
-              this.error = result.error || 'Login failed';
-            }
-          } catch (err) {
-            this.error = 'Network error. Please try again.';
-          } finally {
-            this.isLoading = false;
-          }
-        },
 
-        // logout
-        async logout() {
-          try {
-            await fetch('/api/users/logout', { method: 'POST' });
-            this.isLoggedIn = false;
-            this.currentUser = null;
-            this.loginForm = { username: '', password: '' };
-            this.message = '';
-            this.error = '';
-          } catch (err) {
-            this.error = 'Logout failed';
+            } else {
+              errorMessage.value = data.error || 'Login failed';
+            }
+          } catch (error) {
+            errorMessage.value = 'Network error. Please try again.';
+          } finally {
+            isLoggingIn.value = false;
           }
         }
+
+        // Logout function
+        async function logout() {
+          try {
+            await fetch('/api/users/logout', { method: 'POST' });
+            currentUser.value = null;
+            isLoggedIn.value = false;
+            loginForm.value = { email: '', password: '' };
+          } catch (error) {
+            console.error('Logout error:', error);
+          }
+        }
+
+        onMounted(() => {
+          checkLoginStatus();
+        });
+
+        return {
+          message,
+          isLoggedIn,
+          currentUser,
+          isLoggingIn,
+          errorMessage,
+          loginForm,
+          login,
+          logout
+        };
       }
     }).mount('#app');
   </script>
