@@ -27,10 +27,10 @@ app.get('/api/walkrequests/open', async (req, res) => {
 
         console.error('Database query failed for open walk requests:', dbError);
 
-        
+
         res.status(500).json({
             error: 'Database operation failed',
-            message: 'Unable to fetch open walk requests at this time',
+            message: 'Unable to retrieve open walk requests',
             timestamp: new Date().toISOString()
         });
     }
