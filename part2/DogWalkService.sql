@@ -47,8 +47,8 @@ CREATE TABLE IF NOT EXISTS WalkApplications (
 -- Insert sample users for testing website functionality
 INSERT IGNORE INTO Users (username, email, password_hash, role) VALUES
 ('Jane Smith', 'owner.jane@email.com', 'password123', 'owner'),
-('Terry johnson ', 'walker.mike@email.com', 'password123', 'walker'),
-('Sarah Davis', 'walker.sarah@email.com', 'password123', 'walker'),
+('Terry Johnson ', 'walker.mike@email.com', 'password123', 'walker'),
+('Sarah Munch', 'walker.sarah@email.com', 'password123', 'walker'),
 ('Bob Wilson', 'owner.bob@email.com', 'password123', 'owner');
 
 -- Insert sample dogs
