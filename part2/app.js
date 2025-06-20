@@ -5,35 +5,26 @@ require('dotenv').config();
 
 const app = express();
 
-// Import db to trigger initialization
-require('./models/db');
-
-// Session middleware for login functionality
+// Session configuration
 app.use(session({
-  secret: 'dog-walking-secret-key',
+  secret: process.env.SESSION_SECRET || 'your-secret-key-change-this',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+  cookie: {
+    secure: false, // Set to true in production with HTTPS
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
 }));
 
 // Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '/public')));
 
-// Authentication middleware to protect dashboard routes
-function requireAuth(req, res, next) {
-  if (req.session.user) {
-    next();
-  } else {
-    res.status(401).json({ error: 'Authentication required' });
-  }
-}
-
 // Routes
 const walkRoutes = require('./routes/walkRoutes');
 const userRoutes = require('./routes/userRoutes');
 
-app.use('/api/walks', requireAuth, walkRoutes);
+app.use('/api/walks', walkRoutes);
 app.use('/api/users', userRoutes);
 
 // Export the app instead of listening here
