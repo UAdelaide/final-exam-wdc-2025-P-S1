@@ -9,16 +9,8 @@
 </head>
 <body class="bg-light">
   <div id="app" class="container py-4">
-    <!-- Loading State -->
-    <div v-if="isLoading" class="text-center py-5">
-      <div class="spinner-border text-success" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-      <p>Checking authentication...</p>
-    </div>
-
-    <!-- Not Authenticated -->
-    <div v-else-if="!isAuthenticated" class="text-center py-5">
+    <!-- Authentication Check -->
+    <div v-if="!isAuthenticated" class="text-center py-5">
       <div class="alert alert-warning">
         <h4>Access Denied</h4>
         <p>You must be logged in as a walker to access this page.</p>
@@ -32,44 +24,32 @@
         <h1 class="text-success">Walker Dashboard</h1>
         <div>
           <span class="me-3">Welcome, {{ currentUser.username }}</span>
-          <a href="/" class="btn btn-outline-secondary btn-sm">Back to Home</a>
+          <a href="/" class="btn btn-outline-secondary btn-sm">Home</a>
         </div>
       </div>
 
       <!-- Alert messages -->
-      <div v-if="message" class="alert alert-success">{{ message }}</div>
+      <div v-if="message" class="alert alert-info">{{ message }}</div>
       <div v-if="error" class="alert alert-danger">{{ error }}</div>
 
       <!-- Walk requests list -->
-      <h2 class="mb-3">Available Walk Requests</h2>
       <div v-if="walks.length > 0" class="row">
         <div class="col-md-6 mb-4" v-for="walk in walks" :key="walk.request_id">
-          <div class="card h-100">
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title">Walk for {{ walk.dog_name }}</h5>
-              <div class="card-text flex-grow-1">
-                <p class="mb-2"><strong>Dog:</strong> {{ walk.dog_name }} ({{ walk.size }})</p>
-                <p class="mb-2"><strong>Date:</strong> {{ new Date(walk.requested_time).toLocaleString() }}</p>
-                <p class="mb-2"><strong>Duration:</strong> {{ walk.duration_minutes }} minutes</p>
-                <p class="mb-2"><strong>Location:</strong> {{ walk.location }}</p>
-                <p class="mb-3"><strong>Owner:</strong> {{ walk.owner_name }}</p>
-              </div>
-              <button
-                type="button"
-                class="btn btn-success mt-auto"
-                @click="applyToWalk(walk.request_id)"
-                :disabled="isApplying === walk.request_id">
-                <span v-if="isApplying === walk.request_id" class="spinner-border spinner-border-sm me-2"></span>
-                {{ isApplying === walk.request_id ? 'Applying...' : 'Apply for Walk' }}
-              </button>
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Walk for {{ walk.dog_name }} ({{ walk.size }})</h5>
+              <p class="card-text">
+                <strong>Date:</strong> {{ new Date(walk.requested_time).toLocaleString() }}<br>
+                <strong>Duration:</strong> {{ walk.duration_minutes }} minutes<br>
+                <strong>Location:</strong> {{ walk.location }}<br>
+                <strong>Owner:</strong> {{ walk.owner_name }}
+              </p>
+              <button type="button" class="btn btn-outline-success" @click="applyToWalk(walk.request_id)">Apply</button>
             </div>
           </div>
         </div>
       </div>
-      <div v-else class="alert alert-info">
-        <h5>No Available Walks</h5>
-        <p class="mb-0">No walk requests are currently available. Check back later!</p>
-      </div>
+      <p v-else>No available walk requests at the moment.</p>
     </div>
   </div>
 
@@ -78,16 +58,13 @@
 
     createApp({
       setup() {
-        const isLoading = ref(true);
         const isAuthenticated = ref(false);
         const currentUser = ref(null);
-        const isApplying = ref(null);
-
         const walks = ref([]);
         const message = ref('');
         const error = ref('');
 
-        // Check authentication status
+        // Check authentication
         async function checkAuth() {
           try {
             const response = await fetch('/api/users/me');
@@ -100,9 +77,7 @@
               }
             }
           } catch (err) {
-            console.error('Auth check failed:', err);
-          } finally {
-            isLoading.value = false;
+            isAuthenticated.value = false;
           }
         }
 
@@ -117,7 +92,6 @@
         }
 
         async function applyToWalk(requestId) {
-          isApplying.value = requestId;
           try {
             const res = await fetch(`/api/walks/${requestId}/apply`, {
               method: 'POST',
@@ -127,15 +101,12 @@
             const result = await res.json();
 
             if (!res.ok) throw new Error(result.error || 'Application failed');
-
             message.value = result.message;
             error.value = '';
             await loadWalkRequests();
           } catch (err) {
             error.value = err.message;
             message.value = '';
-          } finally {
-            isApplying.value = null;
           }
         }
 
@@ -144,10 +115,8 @@
         });
 
         return {
-          isLoading,
           isAuthenticated,
           currentUser,
-          isApplying,
           walks,
           message,
           error,
