@@ -62,6 +62,7 @@ VALUES ((SELECT dog_id FROM Dogs WHERE name = 'Bella'),
         '2025-06-10 09:30:00', 45, 'Beachside Ave', 'accepted');
 
 -- Additional walk requests (custom choices)
+
 INSERT INTO WalkRequests (dog_id, requested_time, duration_minutes, location, status)
 VALUES ((SELECT dog_id FROM Dogs WHERE name = 'Ben'),
         '2025-06-11 07:00:00', 60, 'City Park', 'open');
