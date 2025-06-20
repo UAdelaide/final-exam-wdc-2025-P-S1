@@ -80,7 +80,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// MODIFY: Your existing logout route in userRoutes.js to ensure complete cleanup
+// modify your existing logout route
 router.post('/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) {
@@ -92,7 +92,7 @@ router.post('/logout', (req, res) => {
     res.clearCookie('connect.sid', {
       path: '/',
       httpOnly: true,
-      secure: false 
+      secure: false
     });
 
     console.log('User logged out successfully');
