@@ -9,59 +9,92 @@
 </head>
 <body class="bg-light">
   <div id="app" class="container py-4">
-    <h1 class="mb-4 text-primary">Owner Dashboard</h1>
-
-    <!-- Walk request form -->
-    <div class="card mb-4">
-      <div class="card-header bg-primary text-white">
-        Create New Walk Request
+    <!-- Loading State -->
+    <div v-if="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
       </div>
-      <div class="card-body">
-        <form @submit.prevent="submitWalkRequest">
-          <div class="mb-3">
-            <label class="form-label">Dog ID</label>
-            <input v-model="form.dog_id" type="number" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Requested Date & Time</label>
-            <input v-model="form.requested_time" type="datetime-local" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Duration (minutes)</label>
-            <input v-model="form.duration_minutes" type="number" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Location</label>
-            <input v-model="form.location" type="text" class="form-control" required>
-          </div>
-          <button type="submit" class="btn btn-success">Create Walk</button>
-        </form>
+      <p>Checking authentication...</p>
+    </div>
+
+    <!-- Not Authenticated -->
+    <div v-else-if="!isAuthenticated" class="text-center py-5">
+      <div class="alert alert-warning">
+        <h4>Access Denied</h4>
+        <p>You must be logged in as an owner to access this page.</p>
+        <a href="/" class="btn btn-primary">Go to Login</a>
       </div>
     </div>
 
-    <!-- Success or error messages -->
-    <div v-if="message" class="alert alert-info">{{ message }}</div>
-    <div v-if="error" class="alert alert-danger">{{ error }}</div>
+    <!-- Authenticated Owner Content -->
+    <div v-else>
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-primary">Owner Dashboard</h1>
+        <div>
+          <span class="me-3">Welcome, {{ currentUser.username }}</span>
+          <a href="/" class="btn btn-outline-secondary btn-sm">Back to Home</a>
+        </div>
+      </div>
 
-    <!-- List of walk requests -->
-    <h2 class="mb-3">My Walk Requests</h2>
-    <div class="row" v-if="walks.length > 0">
-      <div class="col-md-6 mb-4" v-for="walk in walks" :key="walk.request_id">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Request #{{ walk.request_id }}</h5>
-            <p class="card-text">
-              <strong>Dog:</strong> {{ walk.dog_name }} ({{ walk.size }})<br>
-              <strong>Date:</strong> {{ new Date(walk.requested_time).toLocaleString() }}<br>
-              <strong>Duration:</strong> {{ walk.duration_minutes }} minutes<br>
-              <strong>Location:</strong> {{ walk.location }}<br>
-              <strong>Status:</strong> {{ walk.status }}
-            </p>
+      <!-- Walk request form -->
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          Create New Walk Request
+        </div>
+        <div class="card-body">
+          <form @submit.prevent="submitWalkRequest">
+            <div class="mb-3">
+              <label class="form-label">Dog ID</label>
+              <input v-model="form.dog_id" type="number" class="form-control" required>
+              <div class="form-text">Enter the ID of your dog from the database</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Requested Date & Time</label>
+              <input v-model="form.requested_time" type="datetime-local" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Duration (minutes)</label>
+              <input v-model="form.duration_minutes" type="number" class="form-control" required min="15" max="180">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Location</label>
+              <input v-model="form.location" type="text" class="form-control" required placeholder="e.g., City Park, Downtown Area">
+            </div>
+            <button type="submit" class="btn btn-success" :disabled="isSubmitting">
+              <span v-if="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+              {{ isSubmitting ? 'Creating...' : 'Create Walk Request' }}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Success or error messages -->
+      <div v-if="message" class="alert alert-success">{{ message }}</div>
+      <div v-if="error" class="alert alert-danger">{{ error }}</div>
+
+      <!-- List of walk requests -->
+      <h2 class="mb-3">My Walk Requests</h2>
+      <div class="row" v-if="walks.length > 0">
+        <div class="col-md-6 mb-4" v-for="walk in walks" :key="walk.request_id">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Request #{{ walk.request_id }}</h5>
+              <p class="card-text">
+                <strong>Dog:</strong> {{ walk.dog_name }} ({{ walk.size }})<br>
+                <strong>Date:</strong> {{ new Date(walk.requested_time).toLocaleString() }}<br>
+                <strong>Duration:</strong> {{ walk.duration_minutes }} minutes<br>
+                <strong>Location:</strong> {{ walk.location }}<br>
+                <strong>Status:</strong>
+                <span :class="getStatusClass(walk.status)">{{ walk.status.toUpperCase() }}</span>
+              </p>
+            </div>
           </div>
         </div>
       </div>
+      <div v-else class="alert alert-info">
+        <p class="mb-0">No walk requests yet. Create your first walk request above!</p>
+      </div>
     </div>
-    <p v-else>No walk requests yet.</p>
   </div>
 
   <script>
@@ -69,6 +102,11 @@
 
     createApp({
       setup() {
+        const isLoading = ref(true);
+        const isAuthenticated = ref(false);
+        const currentUser = ref(null);
+        const isSubmitting = ref(false);
+
         const form = ref({
           dog_id: '',
           requested_time: '',
@@ -80,16 +118,38 @@
         const message = ref('');
         const error = ref('');
 
+        // Check authentication status
+        async function checkAuth() {
+          try {
+            const response = await fetch('/api/users/me');
+            if (response.ok) {
+              const user = await response.json();
+              if (user.role === 'owner') {
+                currentUser.value = user;
+                isAuthenticated.value = true;
+                await loadWalks();
+              }
+            }
+          } catch (err) {
+            console.error('Auth check failed:', err);
+          } finally {
+            isLoading.value = false;
+          }
+        }
+
         async function loadWalks() {
           try {
             const res = await fetch('/api/walks');
-            walks.value = await res.json();
+            if (res.ok) {
+              walks.value = await res.json();
+            }
           } catch (err) {
             error.value = 'Failed to load walk requests';
           }
         }
 
         async function submitWalkRequest() {
+          isSubmitting.value = true;
           try {
             const res = await fetch('/api/walks', {
               method: 'POST',
@@ -108,23 +168,40 @@
               duration_minutes: '',
               location: ''
             };
-            loadWalks();
+            await loadWalks();
           } catch (err) {
             error.value = err.message;
             message.value = '';
+          } finally {
+            isSubmitting.value = false;
           }
         }
 
+        function getStatusClass(status) {
+          const classes = {
+            'open': 'badge bg-success',
+            'accepted': 'badge bg-warning',
+            'completed': 'badge bg-primary',
+            'cancelled': 'badge bg-danger'
+          };
+          return classes[status] || 'badge bg-secondary';
+        }
+
         onMounted(() => {
-          loadWalks();
+          checkAuth();
         });
 
         return {
+          isLoading,
+          isAuthenticated,
+          currentUser,
+          isSubmitting,
           form,
           walks,
           message,
           error,
-          submitWalkRequest
+          submitWalkRequest,
+          getStatusClass
         };
       }
     }).mount('#app');
