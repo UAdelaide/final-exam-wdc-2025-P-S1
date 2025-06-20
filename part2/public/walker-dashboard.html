@@ -45,12 +45,12 @@
     createApp({
       setup() {
         const walks = ref([]);
-        const currentUser = ref(null);  // ADDED: Store current user data
+        const currentUser = ref(null);  // added: Store current user data
         const message = ref('');
         const error = ref('');
-        // REMOVED: const user = 3;  // Hardcoded value removed
 
-        // ADDED: Function to get current user from /api/users/me
+
+        // added: Function to get current user
         async function getCurrentUser() {
           try {
             const response = await fetch('/api/users/me', {
@@ -61,7 +61,7 @@
               const userData = await response.json();
               currentUser.value = userData;
 
-              // Redirect 
+              // Redirect
               if (userData.role !== 'walker') {
                 window.location.href = '/owner-dashboard.html';
               }
