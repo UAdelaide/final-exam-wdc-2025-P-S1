@@ -17,20 +17,20 @@ app.use(session({
   }
 }));
 
-// Middleware
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '/public')));
 
-// Routes
+
 const walkRoutes = require('./routes/walkRoutes');
 const userRoutes = require('./routes/userRoutes');
 
 app.use('/api/walks', walkRoutes);
 app.use('/api/users', userRoutes);
 
-// NEW API ENDPOINTS
 
-// GET all dogs with owner information
+
+// get all dogs with information of owners
 app.get('/api/dogs', async (req, res) => {
     try {
         const [rows] = await db.execute(`
