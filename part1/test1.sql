@@ -38,15 +38,15 @@ VALUES ('Bella', 'small',
 -- Additional dogs (custom choices)
 INSERT INTO Dogs (name, size, owner_id)
 VALUES ('bigboy', 'large',
-    (SELECT user_id FROM Users WHERE username = 'emma_pet'));
+    (SELECT user_id FROM Users WHERE username = 'tom123'));
 
 INSERT INTO Dogs (name, size, owner_id)
 VALUES ('Harry', 'small',
     (SELECT user_id FROM Users WHERE username = 'alice123'));
 
 INSERT INTO Dogs (name, size, owner_id)
-VALUES ('', 'medium',
-    (SELECT user_id FROM Users WHERE username = 'emma_pet'));
+VALUES ('Simon', 'medium',
+    (SELECT user_id FROM Users WHERE username = 'rachel123'));
 
 
 -- Insert Walk Requests (5 total: 2 specified + 3 custom)
