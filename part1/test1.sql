@@ -37,7 +37,7 @@ VALUES ('Bella', 'small',
 
 -- Additional dogs (custom choices)
 INSERT INTO Dogs (name, size, owner_id)
-VALUES ('ben', 'large',
+VALUES ('Ben', 'large',
     (SELECT user_id FROM Users WHERE username = 'tom123'));
 
 INSERT INTO Dogs (name, size, owner_id)
@@ -63,11 +63,11 @@ VALUES ((SELECT dog_id FROM Dogs WHERE name = 'Bella'),
 
 -- Additional walk requests (custom choices)
 INSERT INTO WalkRequests (dog_id, requested_time, duration_minutes, location, status)
-VALUES ((SELECT dog_id FROM Dogs WHERE name = 'Rocky'),
+VALUES ((SELECT dog_id FROM Dogs WHERE name = 'Ben'),
         '2025-06-11 07:00:00', 60, 'City Park', 'open');
 
 INSERT INTO WalkRequests (dog_id, requested_time, duration_minutes, location, status)
-VALUES ((SELECT dog_id FROM Dogs WHERE name = 'Luna'),
+VALUES ((SELECT dog_id FROM Dogs WHERE name = 'Harry'),
         '2025-06-11 15:30:00', 25, 'River Walk', 'completed');
 
 INSERT INTO WalkRequests (dog_id, requested_time, duration_minutes, location, status)
