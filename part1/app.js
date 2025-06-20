@@ -1,4 +1,29 @@
 
+app.get('/api/dogs', async (req, res) => {
+    try {
+        const [rows] = await db.execute(`
+            SELECT
+                d.name as dog_name,
+                d.size,
+                u.username as owner_username
+            FROM Dogs d
+            JOIN Users u ON d.owner_id = u.user_id
+            ORDER BY d.name
+        `);
+
+
+        res.json(rows);
+    } catch (error) {
+        console.error('Error retrieving dogs:', error);
+        res.status(500).json({
+            error: 'Internal server error',
+            message: 'Failed to retrieve data from dogs'
+        });
+    }
+});
+
+
+
 app.get('/api/walkers/summary', async (req, res) => {
     try {
         const query = `
