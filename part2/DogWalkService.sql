@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS WalkRequests (
     FOREIGN KEY (dog_id) REFERENCES Dogs(dog_id)
 );
 
--- Create WalkApplications table 
+-- Create WalkApplications table
 CREATE TABLE IF NOT EXISTS WalkApplications (
     application_id INT AUTO_INCREMENT PRIMARY KEY,
     request_id INT,
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS WalkApplications (
     FOREIGN KEY (walker_id) REFERENCES Users(user_id)
 );
 
--- Insert sample users for testing
+-- Insert sample users for testing website functionality
 INSERT IGNORE INTO Users (username, email, password_hash, role) VALUES
 ('Jane Smith', 'owner.jane@email.com', 'password123', 'owner'),
 ('Mike Johnson', 'walker.mike@email.com', 'password123', 'walker'),
