@@ -59,6 +59,6 @@ INSERT IGNORE INTO Dogs (name, size, owner_id) VALUES
 
 -- Insert sample walk requests
 INSERT IGNORE INTO WalkRequests (dog_id, requested_time, duration_minutes, location) VALUES
-(1, '2024-06-21 10:00:00', 30, 'Central Park'),
-(2, '2024-06-21 14:00:00', 45, 'Riverside Park'),
+(1, '2024-06-21 10:00:00', 30, 'Green Park'),
+(2, '2024-06-21 14:00:00', 45, 'Riverside Lake'),
 (3, '2024-06-22 09:00:00', 20, 'Local Neighborhood');
