@@ -5,6 +5,9 @@ require('dotenv').config();
 
 const app = express();
 
+// Import db to trigger initialization
+require('./models/db');
+
 // Session middleware for login functionality
 app.use(session({
   secret: 'dog-walking-secret-key',
