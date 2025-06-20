@@ -80,14 +80,24 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// POST logout
+// MODIFY: Enhanced logout route for complete session cleanup
 router.post('/logout', (req, res) => {
+  // Destroy the session completely
   req.session.destroy((err) => {
     if (err) {
+      console.error('Logout error:', err);
       return res.status(500).json({ error: 'Logout failed' });
     }
+
+    // Clear the session cookie
+    res.clearCookie('connect.sid', {
+      path: '/',
+      httpOnly: true,
+      secure: false // Set to true in production with HTTPS
+    });
+
+    console.log('User logged out successfully');
     res.json({ message: 'Logged out successfully' });
   });
 });
-
 module.exports = router;
