@@ -80,6 +80,29 @@ router.post('/login', async (req, res) => {
   }
 });
 
+
+router.get('/my-dogs', async (req, res) => {
+  try {
+    // Check if user is logged in
+    if (!req.session.user) {
+      return res.status(401).json({ error: 'Not logged in' });
+    }
+
+    // Get dogs belonging to the current user
+    const [rows] = await db.query(`
+      SELECT dog_id, name, size
+      FROM Dogs
+      WHERE owner_id = ?
+      ORDER BY name
+    `, [req.session.user.user_id]);
+
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching user dogs:', error);
+    res.status(500).json({ error: 'Failed to fetch dogs' });
+  }
+});
+
 // modify your existing logout route
 router.post('/logout', (req, res) => {
   req.session.destroy((err) => {
