@@ -10,7 +10,7 @@
 <body class="bg-light">
 
   <div id="app" class="container py-5">
-    <!-- Login Form - shown when not authenticated -->
+    <!-- Login Form - not authenticated -->
     <div v-if="!isLoggedIn" class="row justify-content-center">
       <div class="col-md-6">
         <div class="card shadow">
@@ -50,7 +50,7 @@
               </div>
             </form>
 
-            <!-- Error/Success Messages -->
+            <!-- Error and Success Messages -->
             <div v-if="message" class="alert alert-success mt-3">{{ message }}</div>
             <div v-if="error" class="alert alert-danger mt-3">{{ error }}</div>
           </div>
