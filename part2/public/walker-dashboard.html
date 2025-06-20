@@ -130,15 +130,15 @@
           }
         }
 
-        // MODIFIED: onMounted to call getCurrentUser first
+        // MODIFIED: onMounted 
         onMounted(() => {
-          getCurrentUser();  // ADDED: Get current user on page load
+          getCurrentUser();
           loadWalkRequests();
         });
 
         return {
           walks,
-          currentUser,  // ADDED: Expose currentUser to template
+          currentUser,
           message,
           error,
           applyToWalk,
