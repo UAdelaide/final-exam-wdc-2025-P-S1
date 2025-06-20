@@ -18,7 +18,7 @@ app.get('/api/walkers/summary', async (req, res) => {
 
         const [results] = await db.execute(query);
 
-        
+
         const formattedData = results.map(row => ({
             walker_username: row.walker_username,
             total_ratings: row.total_ratings,
@@ -29,10 +29,10 @@ app.get('/api/walkers/summary', async (req, res) => {
         res.json(formattedData);
 
     } catch (error) {
-        console.error('Error getting walker summary:', error);
+        console.error('Error retreiving walker summary:', error);
         res.status(500).json({
             error: 'Server error',
-            message: 'Could not get walker summary'
+            message: 'Could not retrieve walker summary'
         });
     }
 });
