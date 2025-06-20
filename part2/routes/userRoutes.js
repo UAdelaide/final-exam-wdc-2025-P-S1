@@ -103,6 +103,7 @@ router.get('/my-dogs', async (req, res) => {
   }
 });
 
+
 // modify your existing logout route
 router.post('/logout', (req, res) => {
   req.session.destroy((err) => {
