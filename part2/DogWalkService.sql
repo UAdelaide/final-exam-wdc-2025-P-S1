@@ -1,8 +1,8 @@
--- Ensure database
+-- Create database
 CREATE DATABASE IF NOT EXISTS DogWalkService;
 USE DogWalkService;
 
--- Create Users table
+-- Create Users 
 CREATE TABLE IF NOT EXISTS Users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
