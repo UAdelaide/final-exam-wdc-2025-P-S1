@@ -61,12 +61,12 @@
               const userData = await response.json();
               currentUser.value = userData;
 
-              // Redirect if not a walker
+              // Redirect 
               if (userData.role !== 'walker') {
                 window.location.href = '/owner-dashboard.html';
               }
             } else {
-              // Not logged in, redirect to login
+              // Not logged in
               window.location.href = '/';
             }
           } catch (err) {
